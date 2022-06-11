@@ -48,7 +48,6 @@ def fill_blank_days(df: pd.DataFrame):
 
 def main():
     args = sys.argv[1:]
-    args = ["2022-01-01"]
     if len(args) == 2:
         end_date = min(datetime.date.fromisoformat(args[1]), datetime.date.today() - datetime.timedelta(days=1))
         start_date = datetime.date.fromisoformat(args[0])
