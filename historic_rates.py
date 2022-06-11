@@ -1,7 +1,9 @@
 import sys
 import pandas as pd
 import datetime
+import os
 import requests
+import time
 
 
 def get_rates(start_date, end_date, API_URL):
@@ -32,11 +34,11 @@ def fill_blank_days(df: pd.DataFrame):
             prev_date = date - datetime.timedelta(days=1)
             new_day_df = pd.DataFrame({'index':[], 'code':[], 'rate': []})
             for currency in codes:
-                new_day_df = new_day_df.append(
+                new_day_df = pd.concat([new_day_df, 
                     pd.DataFrame({'index':[date.isoformat()], 
                                     'code':[currency], 
-                                    'rate': list(df[(df['index'] == prev_date.isoformat()) & (df['code'] == currency)]['rate'])}))
-            df = df.append(new_day_df)
+                                    'rate': list(df[(df['index'] == prev_date.isoformat()) & (df['code'] == currency)]['rate'])})])
+            df = pd.concat([df, new_day_df])
     df = df.sort_values('index')
     return df.drop('date', axis=1)
 
@@ -65,10 +67,12 @@ def main():
         split_date = end
         curr_rates = get_rates(begin.isoformat(), end.isoformat(), API_URL)
         curr_rates = curr_rates.reset_index().melt(id_vars='index', value_name='rate', var_name='code')
-        rates = rates.append(curr_rates) 
+        rates = pd.concat([rates, curr_rates], axis=0)
+        time.sleep(0.5)
 
     rates = fill_blank_days(rates)
-    rates.to_csv('TEMP/rates.csv', mode='w+', index=False)
+    file_path = os.path.join('TEMP', 'rates.csv')
+    rates.to_csv(file_path, mode='w+', index=False)
 
 
 if __name__ == '__main__':
