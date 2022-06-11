@@ -34,10 +34,13 @@ def fill_blank_days(df: pd.DataFrame):
             prev_date = date - datetime.timedelta(days=1)
             new_day_df = pd.DataFrame({'index':[], 'code':[], 'rate': []})
             for currency in codes:
+                rate = list(df[(df['index'] == prev_date.isoformat()) & (df['code'] == currency)]['rate'])
+                if len(rate) != 1:
+                    continue
                 new_day_df = pd.concat([new_day_df, 
                     pd.DataFrame({'index':[date.isoformat()], 
                                     'code':[currency], 
-                                    'rate': list(df[(df['index'] == prev_date.isoformat()) & (df['code'] == currency)]['rate'])})])
+                                    'rate': rate})])
             df = pd.concat([df, new_day_df])
     df = df.sort_values('index')
     return df.drop('date', axis=1)
@@ -45,6 +48,7 @@ def fill_blank_days(df: pd.DataFrame):
 
 def main():
     args = sys.argv[1:]
+    args = ["2022-01-01"]
     if len(args) == 2:
         end_date = min(datetime.date.fromisoformat(args[1]), datetime.date.today() - datetime.timedelta(days=1))
         start_date = datetime.date.fromisoformat(args[0])
@@ -66,9 +70,13 @@ def main():
         end = min(add90days(split_date), end_date)
         split_date = end
         curr_rates = get_rates(begin.isoformat(), end.isoformat(), API_URL)
+        try:
+            curr_rates = curr_rates.drop("RUB", axis=1)
+        except KeyError:
+            pass
         curr_rates = curr_rates.reset_index().melt(id_vars='index', value_name='rate', var_name='code')
         rates = pd.concat([rates, curr_rates], axis=0)
-        time.sleep(0.5)
+        time.sleep(2.5)
 
     rates = fill_blank_days(rates)
     file_path = os.path.join('TEMP', 'rates.csv')
