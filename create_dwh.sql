@@ -38,7 +38,6 @@ GO
 
 CREATE TABLE [dbo].[CustomerDim] (
   [CustomerSKID] int PRIMARY KEY IDENTITY(1, 1),
-  [CustomerID] int NOT NULL,
   [CustomerName] VARCHAR(60) NOT NULL,
   [ContactName] VARCHAR(20) NOT NULL,
   [City] VARCHAR(30) NOT NULL,
@@ -54,7 +53,6 @@ GO
 
 CREATE TABLE [dbo].[ProductDim] (
   [ProductSKID] int PRIMARY KEY IDENTITY(1, 1),
-  [ProductID] int NOT NULL,
   [ProductLine] VARCHAR(30) NOT NULL,
   [ProductCode] VARCHAR(10) NOT NULL,
   [SuggestedRetailPricePLN] int NOT NULL,
@@ -93,7 +91,7 @@ CREATE TABLE [dbo].[CurrencyExchangeRateFact] (
 GO
 
 CREATE TABLE [dbo].[CurrencyDim] (
-  [CurrencyKey] CHAR(3) PRIMARY KEY IDENTITY(1, 1),
+  [CurrencyKey] CHAR(3) PRIMARY KEY,
   [CurrencyName] VARCHAR(30) NOT NULL
 )
 GO
